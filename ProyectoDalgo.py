@@ -1,15 +1,29 @@
-def score_col(T, k):
-    q, r = divmod(T, 3)          # q = puntos teóricos, r = sobrante (0..2)
-    s = (q + 2) // 3             # mín # de dígitos premiados (cada uno da ≤3)
-    if r == 0 or s < k:
-        return q                 # hay al menos un dígito "no premiado" que absorbe el sobrante
-    # r > 0 y s == k: todos los k dígitos ya son 3/6/9, no hay dónde poner el sobrante
-    m = q % 3
-    return q - (1 if m == 1 else 2)  # degradar un 3→4/5 (-1) o un 6→7/8 (-2)
+def max_carry_real(k):
+    """Calcula el acarreo máximo real posible"""
+    return (9 * k) // 10
+
+def crear_tabla_score(k, max_T):
+    """Precalcula score_col para todos los T posibles"""
+    tabla = [0] * (max_T + 1)  # Usar array para O(1) acceso
+    for T in range(max_T + 1):
+        q, r = divmod(T, 3)
+        s = (q + 2) // 3
+        if r == 0 or s < k:
+            tabla[T] = q
+        else:
+            m = q % 3
+            tabla[T] = q - (1 if m == 1 else 2)
+    return tabla
 
 
 def resolver_festival_robots(n, k, valores_p):
-
+    # Precalcular tabla de score_col para O(1) lookup
+    max_T = 9 * k
+    tabla_score = crear_tabla_score(k, max_T)
+    
+    # Calcular límite preciso de acarreo con margen de seguridad
+    max_carry = max_carry_real(k) + 5
+    
     # Convertir n a dígitos (de derecha a izquierda: unidades, decenas, ...)
     digitos_n = []
     temp_n = n
@@ -21,40 +35,50 @@ def resolver_festival_robots(n, k, valores_p):
     if not digitos_n:
         digitos_n = [0]
     
-    num_columnas = len(digitos_n)
+    num_digitos = len(digitos_n)
     
-    # DP[columna][acarreo] = máxima creatividad
-    dp_prev = {0: 0}  # Caso base: columna 0, acarreo 0
-    dp_curr = {}
+    # Extender valores_p con ceros si es necesario
+    if len(valores_p) < num_digitos:
+        valores_p = valores_p + [0] * (num_digitos - len(valores_p))
+    
+    # DP usando arrays: -1 indica estado inalcanzable
+    dp_prev = [-1] * (max_carry + 1)
+    dp_prev[0] = 0  # Caso base: columna 0, acarreo 0
     
     # Procesar cada columna
-    for col in range(num_columnas):
-        dp_curr = {}
+    for col in range(num_digitos):
+        dp_curr = [-1] * (max_carry + 1)
         d_p = digitos_n[col]
-        P_p = valores_p[col] if col < len(valores_p) else 0
+        P_p = valores_p[col]
         
         # Para cada acarreo de entrada alcanzable
-        for cin in dp_prev:
-            # Probar todas las sumas T posibles en esta columna
-            # T debe satisfacer: T ≡ d_p - cin (mod 10) y 0 ≤ T ≤ 9*k
-            target_mod = (d_p - cin) % 10
+        for cin in range(max_carry + 1):
+            if dp_prev[cin] == -1:  # Estado inalcanzable
+                continue
             
-            for T in range(target_mod, 9 * k + 1, 10):
-                # Calcular acarreo de salida
-                cout = (T - d_p + cin) // 10
+            # NUEVA IMPLEMENTACIÓN: Iterar sobre cout en lugar de T
+            # Calcular rango de cout válidos usando techo entero
+            lo = (cin - d_p + 9) // 10
+            if lo < 0:
+                lo = 0
+            hi = min(max_carry, (9 * k + cin - d_p) // 10)
+            
+            for cout in range(lo, hi + 1):
+                # Calcular T correspondiente (garantizado en rango [0, 9*k])
+                T = d_p - cin + 10 * cout
                 
-                # Ganancia óptima de esta columna usando score_col
-                ganancia = P_p * score_col(T, k)
+                # Calcular ganancia usando tabla precalculada
+                ganancia = P_p * tabla_score[T]
                 
                 # Actualizar DP
                 nueva_creatividad = dp_prev[cin] + ganancia
-                if cout not in dp_curr or dp_curr[cout] < nueva_creatividad:
+                if dp_curr[cout] == -1 or dp_curr[cout] < nueva_creatividad:
                     dp_curr[cout] = nueva_creatividad
         
         dp_prev = dp_curr
     
     # La respuesta está en dp_curr[0] (acarreo final debe ser 0)
-    return dp_curr.get(0, 0)
+    return dp_prev[0] if dp_prev[0] != -1 else 0
 
 
 if __name__ == "__main__":
