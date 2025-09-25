@@ -1,3 +1,7 @@
+#Proyecto Realizado por:
+#Angela Jimenez
+#Andrés Felipe Alfonso Gamba - 202210412
+
 def max_carry_real(k):
     """Calcula el acarreo máximo real posible"""
     return (9 * k) // 10
