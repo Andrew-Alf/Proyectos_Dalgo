@@ -2,6 +2,8 @@
 #Angela Jimenez
 #Andrés Felipe Alfonso Gamba - 202210412
 
+import time
+
 def max_carry_real(k):
     """Calcula el acarreo máximo real posible"""
     return (9 * k) // 10
@@ -88,6 +90,8 @@ def resolver_festival_robots(n, k, valores_p):
 if __name__ == "__main__":
     import sys
     
+    tiempo_inicio = time.time()
+    
     input = sys.stdin.read
     data = input().strip().split('\n')
     
@@ -104,3 +108,6 @@ if __name__ == "__main__":
         
         resultado = resolver_festival_robots(n, k, valores_p)
         print(resultado)
+    
+    tiempo_total = time.time() - tiempo_inicio
+    print(f"Tiempo: {tiempo_total:.6f}s", file=sys.stderr)
