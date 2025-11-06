@@ -1,5 +1,9 @@
 //Proyecto Realizado por:
+<<<<<<< HEAD
 //Angela Jimenez - 202210989
+=======
+//Angela Jimenez Gonzalez - 202210989
+>>>>>>> 5c65be4081f1cfa0c3bc88255b0f95827d8105d8
 //Andrés Felipe Alfonso Gamba - 202210412
 
 import java.io.*;
