@@ -1,5 +1,5 @@
 //Proyecto Realizado por:
-//Angela Jimenez
+//Angela Jimenez - 202210989
 //Andrés Felipe Alfonso Gamba - 202210412
 
 import java.io.*;
@@ -9,14 +9,12 @@ import java.util.stream.IntStream;
 public class ProblemaP1 {
     
     public static int maxCarryReal(int k) {
-        // Calcula el acarreo máximo real posible
         return (9 * k) / 10;
     }
     
     public static int[] crearTablaScore(int k, int maxT) {
-        // Precalcula score_col para todos los T posibles
-        int[] tabla = new int[maxT + 1];  // Usar array para O(1) acceso
-        
+        int[] tabla = new int[maxT + 1];
+
         for (int T = 0; T <= maxT; T++) {
             int q = T / 3;
             int r = T % 3;
@@ -33,14 +31,11 @@ public class ProblemaP1 {
     }
     
     public static long resolverFestivalRobots(int n, int k, int[] valoresP) {
-        // Precalcular tabla de score_col para O(1) lookup
         int maxT = 9 * k;
         int[] tablaScore = crearTablaScore(k, maxT);
         
-        // Calcular límite preciso de acarreo con margen de seguridad
         int maxCarry = maxCarryReal(k) + 5;
         
-        // Convertir n a dígitos (de derecha a izquierda: unidades, decenas, ...)
         int[] digitosN;
         if (n == 0) {
             digitosN = new int[]{0};
@@ -75,14 +70,11 @@ public class ProblemaP1 {
             int dP = digitosN[col];
             int PP = valoresPExtendidos[col];
             
-            // Para cada acarreo de entrada alcanzable
             for (int cin = 0; cin <= maxCarry; cin++) {
                 if (dpPrev[cin] == -1) {  // Estado inalcanzable
                     continue;
                 }
                 
-                // NUEVA IMPLEMENTACIÓN: Iterar sobre cout en lugar de T
-                // Calcular rango de cout válidos usando techo entero
                 int lo = (cin - dP + 9) / 10;
                 if (lo < 0) {
                     lo = 0;
@@ -90,13 +82,10 @@ public class ProblemaP1 {
                 int hi = Math.min(maxCarry, (9 * k + cin - dP) / 10);
                 
                 for (int cout = lo; cout <= hi; cout++) {
-                    // Calcular T correspondiente (garantizado en rango [0, 9*k])
                     int T = dP - cin + 10 * cout;
                     
-                    // Calcular ganancia usando tabla precalculada
                     long ganancia = (long) PP * tablaScore[T];
                     
-                    // Actualizar DP
                     long nuevaCreatividad = dpPrev[cin] + ganancia;
                     if (dpCurr[cout] == -1 || dpCurr[cout] < nuevaCreatividad) {
                         dpCurr[cout] = nuevaCreatividad;
@@ -107,12 +96,11 @@ public class ProblemaP1 {
             dpPrev = dpCurr;
         }
         
-        // La respuesta está en dpPrev[0] (acarreo final debe ser 0)
         return dpPrev[0] != -1 ? dpPrev[0] : 0;
     }
     
     public static void main(String[] args) throws IOException {
-        long tiempoInicio = System.nanoTime();
+        // long tiempoInicio = System.nanoTime();
         
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         PrintWriter pw = new PrintWriter(System.out);
@@ -137,7 +125,7 @@ public class ProblemaP1 {
         pw.flush();
         br.close();
         
-        long tiempoTotal = System.nanoTime() - tiempoInicio;
-        System.err.printf("Tiempo: %.6fs%n", tiempoTotal / 1_000_000_000.0);
+        // long tiempoTotal = System.nanoTime() - tiempoInicio;
+        // System.err.printf("Tiempo: %.6fs%n", tiempoTotal / 1_000_000_000.0);
     }
 }
