@@ -2,8 +2,6 @@
 # Angela Jimenez - 202210989
 # Andrés Felipe Alfonso Gamba - 202210412
 
-from collections import defaultdict
-
 def dsu_init(n):
     padre = list(range(n+1))
     tam = [1] * (n+1)
@@ -27,16 +25,12 @@ def dsu_union(padre, tam, a, b):
     return a
 
 def process_case(n_nodos, aristas):
-    # Inicializar DSUs (como pares padre/tam)
     dsu_fibra_padre, dsu_fibra_tam = dsu_init(n_nodos)
     dsu_coaxial_padre, dsu_coaxial_tam = dsu_init(n_nodos)
 
-    # mapF: líderF -> (dict líderC -> count)
-    # mapC: líderC -> (dict líderF -> count)
     mapF = {i: {i: 1} for i in range(1, n_nodos+1)}
     mapC = {i: {i: 1} for i in range(1, n_nodos+1)}
 
-    # contadores globales: cuántos líderes tienen más de un mapeo
     badF = 0
     badC = 0
 
@@ -48,28 +42,22 @@ def process_case(n_nodos, aristas):
         fb = dsu_find(dsu_fibra_padre, y)
         if fa == fb:
             return
-        # ensure fa is the larger
         if dsu_fibra_tam[fa] < dsu_fibra_tam[fb]:
             fa, fb = fb, fa
-        # perform union
         dsu_union(dsu_fibra_padre, dsu_fibra_tam, fa, fb)
 
         MF_a = mapF.get(fa, {})
         MF_b = mapF.get(fb, {})
 
-        # adjust badF for previous states
         if len(MF_a) > 1:
             badF -= 1
         if len(MF_b) > 1:
             badF -= 1
 
-        # merge MF_b into MF_a
         for liderC, cnt in list(MF_b.items()):
             MC = mapC.get(liderC, {})
             antes = len(MC)
-            # remove fb entry from MC
-            val_fb = MC.pop(fb, 0)
-            # add cnt to fa in MC
+            MC.pop(fb, 0)
             MC[fa] = MC.get(fa, 0) + cnt
             despues = len(MC)
             if antes > 1 and despues <= 1:
@@ -108,11 +96,9 @@ def process_case(n_nodos, aristas):
             MF = mapF.get(liderF, {})
             antes = len(MF)
 
-            # remove cb entry from MF (if any) and add to ca
-            val_cb = MF.pop(cb, 0)
+            MF.pop(cb, 0)
             MF[ca] = MF.get(ca, 0) + cnt
 
-            # update mapC entries
             MCa = mapC.get(ca, {})
             MCa[liderF] = MCa.get(liderF, 0) + cnt
             MCb = mapC.get(cb, {})
@@ -147,8 +133,7 @@ def process_case(n_nodos, aristas):
     return respuestas
 
 if __name__ == '__main__':
-    import sys, os
-    # soporte para pasar archivo de entrada opcional como argumento
+    import sys
     input_path = sys.argv[1] if len(sys.argv) > 1 else None
     if input_path:
         with open(input_path, 'r', encoding='utf-8') as f:
@@ -169,8 +154,6 @@ if __name__ == '__main__':
             aristas.append((a,b,tipo))
         out_lines.append(' '.join(str(x) for x in process_case(n_nodos, aristas)))
     output = '\n'.join(out_lines)
-    # Asegurar que la salida termine en newline para el juez
     if not output.endswith('\n'):
         output += '\n'
-    # Sólo imprimir por stdout la respuesta (sin tiempos ni archivos adicionales)
     sys.stdout.write(output)

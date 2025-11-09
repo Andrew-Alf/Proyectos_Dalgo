@@ -2,40 +2,47 @@
 # Angela Jimenez - 202210989
 # Andrés Felipe Alfonso Gamba - 202210412
 
-class DSU:
-    def __init__(self,n):
-        self.padre=list(range(n+1))
-        self.tam=[1]*(n+1)
-    def buscar(self,a):
-        p=self.padre
-        while p[a]!=a:
-            p[a]=p[p[a]]
-            a=p[a]
+def dsu_init(n):
+    """Inicializa y devuelve las estructuras padre y tam para un DSU.
+    Devuelve (padre, tam) donde ambos son listas 0..n.
+    """
+    padre = list(range(n+1))
+    tam = [1] * (n+1)
+    return padre, tam
+
+def dsu_find(padre, a):
+    p = padre
+    while p[a] != a:
+        p[a] = p[p[a]]
+        a = p[a]
+    return a
+
+def dsu_union(padre, tam, a, b):
+    a = dsu_find(padre, a); b = dsu_find(padre, b)
+    if a == b:
         return a
-    def unir(self,a,b):
-        a=self.buscar(a); b=self.buscar(b)
-        if a==b: return a
-        if self.tam[a]<self.tam[b]: a,b=b,a
-        self.padre[b]=a
-        self.tam[a]+=self.tam[b]
-        return a
+    if tam[a] < tam[b]:
+        a, b = b, a
+    padre[b] = a
+    tam[a] += tam[b]
+    return a
 
 def process_case(n_nodos, aristas):
-    dsu_fibra = DSU(n_nodos)
-    dsu_coaxial = DSU(n_nodos)
+    dsu_fibra_padre, dsu_fibra_tam = dsu_init(n_nodos)
+    dsu_coaxial_padre, dsu_coaxial_tam = dsu_init(n_nodos)
     respuestas = []
     for (a,b,tipo) in aristas:
         if tipo==1:
-            dsu_fibra.unir(a,b)
+            dsu_union(dsu_fibra_padre, dsu_fibra_tam, a, b)
         else:
-            dsu_coaxial.unir(a,b)
+            dsu_union(dsu_coaxial_padre, dsu_coaxial_tam, a, b)
 
         # escanear todos los nodos
         comp_fibra = [0]*(n_nodos+1)
         comp_coaxial = [0]*(n_nodos+1)
         for i in range(1,n_nodos+1):
-            comp_fibra[i]=dsu_fibra.buscar(i)
-            comp_coaxial[i]=dsu_coaxial.buscar(i)
+            comp_fibra[i]=dsu_find(dsu_fibra_padre, i)
+            comp_coaxial[i]=dsu_find(dsu_coaxial_padre, i)
 
         # Verificación biyectiva robusta: contar tuplas (repF,repC)
         pares = set((comp_fibra[i], comp_coaxial[i]) for i in range(1, n_nodos+1))
