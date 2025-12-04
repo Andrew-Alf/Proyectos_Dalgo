@@ -1,4 +1,7 @@
-#!/usr/bin/env python3
+# Proyecto Realizado por:
+# Angela Jimenez - 202210989
+# Andrés Felipe Alfonso Gamba - 202210412
+
 from collections import defaultdict
 import sys
 
