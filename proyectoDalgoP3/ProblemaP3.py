@@ -14,7 +14,7 @@ def solve_case(points):
         vert_segments:  lista de (x, y1, x, y2)
     """
 
-    # Por seguridad, eliminar duplicados (el enunciado dice que los focos son distintos).
+    
     points = list(dict.fromkeys(points))
 
     # Agrupar por filas y por columnas
@@ -27,7 +27,7 @@ def solve_case(points):
     # Ordenar filas (y) y columnas (x)
     row_keys = sorted(rows.keys())     # todas las y con al menos un foco
     col_keys = sorted(cols.keys())     # todos los x con al menos un foco
-    row_index = {y: i for i, y in enumerate(row_keys)}  # y -> índice en 0..R-1
+    row_index = {y: i for i, y in enumerate(row_keys)}
 
     horiz_segments = []
     vert_segments = []
@@ -52,18 +52,14 @@ def solve_case(points):
         for y in ys_sorted[1:]:
             curr_idx = row_index[y]
             if curr_idx == prev_idx + 1:
-                # sigue el run
                 prev_idx = curr_idx
                 prev_y = y
             else:
-                # cerrar segmento anterior
                 vert_segments.append((x, start_y, x, prev_y))
-                # iniciar nuevo segmento
                 start_y = y
                 prev_idx = curr_idx
                 prev_y = y
 
-        # cerrar último segmento de la columna
         vert_segments.append((x, start_y, x, prev_y))
 
     return horiz_segments, vert_segments
